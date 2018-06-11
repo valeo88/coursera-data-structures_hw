@@ -23,6 +23,16 @@ public:
     }
 };
 
+int HeightRecursive(Node *tree) {
+    if (tree->children.size()==0) return 1;
+    std::vector<int> heights;
+    for (Node *child : tree->children) {
+        heights.push_back(HeightRecursive(child));
+    }
+    auto res = std::max_element(heights.begin(), heights.end());
+    return 1 + *res;
+}
+
 
 int main_with_large_stack_space() {
   std::ios_base::sync_with_stdio(0);
@@ -31,23 +41,29 @@ int main_with_large_stack_space() {
 
   std::vector<Node> nodes;
   nodes.resize(n);
+  // index of root in vector
+  size_t root_idx = 0;
   for (int child_index = 0; child_index < n; child_index++) {
     int parent_index;
     std::cin >> parent_index;
-    if (parent_index >= 0)
+    if (parent_index >= 0) {
       nodes[child_index].setParent(&nodes[parent_index]);
+    } else {
+      root_idx = child_index;
+    }
     nodes[child_index].key = child_index;
   }
 
   // Replace this code with a faster implementation
-  int maxHeight = 0;
+  /*int maxHeight = 0;
   for (int leaf_index = 0; leaf_index < n; leaf_index++) {
     int height = 0;
     for (Node *v = &nodes[leaf_index]; v != NULL; v = v->parent)
       height++;
     maxHeight = std::max(maxHeight, height);
-  }
-    
+  }*/
+  int maxHeight = HeightRecursive(&nodes[root_idx]);
+
   std::cout << maxHeight << std::endl;
   return 0;
 }
