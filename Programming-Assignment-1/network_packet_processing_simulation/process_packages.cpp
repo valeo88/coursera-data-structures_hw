@@ -31,6 +31,30 @@ public:
 
     Response Process(const Request &request) {
         // write your code here
+        // When a new packet arrives, you will first need to pop from the front of finish_time all the packets which are
+        // already processed by the time new packet arrives.
+        while (!finish_time_.empty()) {
+            int top = finish_time_.front();
+            if (top <= request.arrival_time) {
+                finish_time_.pop();
+            } else {
+                break;
+            }
+        }
+        // if finish_time_ is full then package dropped
+        if (finish_time_.size()==size_) {
+            return Response(true, 0);
+        } else {
+            // add to end of finish_time_
+            if (finish_time_.empty()) {
+                finish_time_.push(request.arrival_time+request.process_time);
+                return Response(false, request.arrival_time);
+            } else {
+                int last = finish_time_.back();
+                finish_time_.push(last+request.process_time);
+                return Response(false, last);
+            }
+        }
     }
 private:
     int size_;
