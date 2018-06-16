@@ -21,6 +21,13 @@ class HeapBuilder {
     }
   }
 
+  void WriteData() const {
+    for (int i = 0; i < data_.size(); ++i) {
+      cout << data_[i] << ", ";
+    }
+    cout << "\n";
+  }
+
   void ReadData() {
     int n;
     cin >> n;
@@ -29,22 +36,39 @@ class HeapBuilder {
       cin >> data_[i];
   }
 
+  void SiftDown(int i, vector<int>& data_, vector< pair<int, int> >& swaps_) {
+    int max_idx = i;
+    int l = 2*i + 1;
+    int r = 2*i + 2;
+    const int n = data_.size();
+    if (l <= n - 1 && data_[l] < data_[max_idx]) max_idx = l;
+    if (r <= n - 1 && data_[r] < data_[max_idx]) max_idx = r;
+    if (i != max_idx) {
+        swap(data_[i], data_[max_idx]);
+        swaps_.push_back(make_pair(i, max_idx));
+        SiftDown(max_idx, data_, swaps_);
+    }
+  }
+
   void GenerateSwaps() {
     swaps_.clear();
-    // The following naive implementation just sorts 
+    // The following naive implementation just sorts
     // the given sequence using selection sort algorithm
     // and saves the resulting sequence of swaps.
-    // This turns the given array into a heap, 
+    // This turns the given array into a heap,
     // but in the worst case gives a quadratic number of swaps.
     //
     // TODO: replace by a more efficient implementation
-    for (int i = 0; i < data_.size(); ++i)
-      for (int j = i + 1; j < data_.size(); ++j) {
-        if (data_[i] > data_[j]) {
-          swap(data_[i], data_[j]);
-          swaps_.push_back(make_pair(i, j));
-        }
-      }
+    //for (int i = 0; i < data_.size(); ++i)
+    //  for (int j = i + 1; j < data_.size(); ++j) {
+    //    if (data_[i] > data_[j]) {
+    //      swap(data_[i], data_[j]);
+    //      swaps_.push_back(make_pair(i, j));
+    //    }
+    //  }
+    for (int i = (data_.size() + 1) / 2; i >= 0; --i) {
+        SiftDown(i, data_, swaps_);
+    }
   }
 
  public:
@@ -52,6 +76,7 @@ class HeapBuilder {
     ReadData();
     GenerateSwaps();
     WriteResponse();
+    //WriteData();
   }
 };
 
