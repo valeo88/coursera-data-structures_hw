@@ -8,6 +8,18 @@ using std::cin;
 using std::cout;
 using std::swap;
 
+struct Worker {
+    int number; // number of worker from 0 to n
+    long long priority; // sum of durations of all jobs assigned to this worker
+};
+
+bool operator<(const Worker& lhs, const Worker& rhs) {
+    if (lhs.priority!=rhs.priority) {
+        return lhs.priority < rhs.priority;
+    }
+    return lhs.number < rhs.number;
+}
+
 class JobQueue {
  private:
   int num_workers_;
@@ -16,8 +28,7 @@ class JobQueue {
 
   vector<int> assigned_workers_;
   vector<long long> start_times_;
-  vector<long long> h; // min heap
-  vector<int> h_idx; // where to find worker after heap operations
+  vector<Worker> h; // vector for min-heap of Workers
 
   void WriteResponse() const {
     for (int i = 0; i < jobs_.size(); ++i) {
@@ -52,16 +63,16 @@ class JobQueue {
 
     assigned_workers_.resize(jobs_.size());
     start_times_.resize(jobs_.size());
-    h.resize(num_workers_, 0);
-    h_idx.resize(num_workers_, 0);
+    h.resize(num_workers_);
+    // initialize min-heap vector
     for (int i = 0; i < num_workers_; ++i) {
-        h_idx[i] = i;
+        h[i] = {i, 0};
     }
     for (int i = 0; i < jobs_.size(); ++i) {
         int duration = jobs_[i];
-        assigned_workers_[i] = h_idx[0];
-        start_times_[i] = h[0];
-        ChangePriority(0, h[0]+duration);
+        assigned_workers_[i] = h[0].number;
+        start_times_[i] = h[0].priority;
+        ChangePriority(0, h[0].priority+duration); // add duration to worker priority
         //std::cout << "h = ";
         //for (int m = 0; m < h.size(); ++m) {
         //    std::cout<< h[m] << " ";
@@ -77,9 +88,8 @@ class JobQueue {
 
 
   void SiftUp(int i) {
-    while (i > 1 && h[(i-1)/2] > h[i]) {
+    while (i > 1 && h[i] < h[(i-1)/2]) {
         swap(h[(i-1)/2], h[i]);
-        swap(h_idx[(i-1)/2], h_idx[i]);
         i = (i-1) / 2;
     }
   }
@@ -93,14 +103,13 @@ class JobQueue {
     if (r <= n - 1 && h[r] < h[max_idx]) max_idx = r;
     if (i != max_idx) {
         swap(h[i], h[max_idx]);
-        swap(h_idx[i], h_idx[max_idx]);
         SiftDown(max_idx);
     }
   }
 
   void ChangePriority(int i, long long p) {
-    long long oldp = h[i];
-    h[i] = p;
+    long long oldp = h[i].priority;
+    h[i].priority = p;
     if (p < oldp) {
         SiftUp(i);
     } else {
