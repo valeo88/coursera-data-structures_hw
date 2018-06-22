@@ -15,7 +15,7 @@ struct Query {
 class QueryProcessor {
     int bucket_count;
     // store all strings in one vector
-    vector<string> elems;
+    vector<vector<string>> table;
     size_t hash_func(const string& s) const {
         static const size_t multiplier = 263;
         static const size_t prime = 1000000007;
@@ -26,7 +26,9 @@ class QueryProcessor {
     }
 
 public:
-    explicit QueryProcessor(int bucket_count): bucket_count(bucket_count) {}
+    explicit QueryProcessor(int bucket_count): bucket_count(bucket_count) {
+        table.resize(bucket_count);
+    }
 
     Query readQuery() const {
         Query query;
@@ -45,12 +47,29 @@ public:
     void processQuery(const Query& query) {
         if (query.type == "check") {
             // use reverse order, because we append strings to the end
-            for (int i = static_cast<int>(elems.size()) - 1; i >= 0; --i)
-                if (hash_func(elems[i]) == query.ind)
-                    std::cout << elems[i] << " ";
+            //for (int i = static_cast<int>(elems.size()) - 1; i >= 0; --i)
+            //    if (hash_func(elems[i]) == query.ind)
+            //        std::cout << elems[i] << " ";
+            for (auto it = table[query.ind].rbegin(); it != table[query.ind].rend(); ++it) {
+                std::cout << *it << " ";
+            }
             std::cout << "\n";
         } else {
-            vector<string>::iterator it = std::find(elems.begin(), elems.end(), query.s);
+            size_t query_hash = hash_func(query.s);
+            vector<string>& chain = table[query_hash];
+            if (query.type == "find") {
+                auto it = std::find(chain.begin(), chain.end(), query.s);
+                writeSearchResult(it != chain.end());
+            } else if (query.type == "add") {
+                auto it = std::find(chain.begin(), chain.end(), query.s);
+                if (it == chain.end())
+                    chain.push_back(query.s);
+            } else if (query.type == "del") {
+                auto it = std::remove(chain.begin(), chain.end(), query.s);
+                if (it != chain.end())
+                    chain.erase(it);
+            }
+            /*vector<string>::iterator it = std::find(elems.begin(), elems.end(), query.s);
             if (query.type == "find")
                 writeSearchResult(it != elems.end());
             else if (query.type == "add") {
@@ -59,7 +78,7 @@ public:
             } else if (query.type == "del") {
                 if (it != elems.end())
                     elems.erase(it);
-            }
+            }*/
         }
     }
 
