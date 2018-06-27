@@ -27,20 +27,41 @@ public:
     }
   }
 
+  void in_order_traversal(int root_idx, vector<int>& result) {
+    if (root_idx == -1) return;
+    in_order_traversal(left[root_idx], result);
+    result.push_back(key[root_idx]);
+    in_order_traversal(right[root_idx], result);
+  }
+
+  void pre_order_traversal(int root_idx, vector<int>& result) {
+    if (root_idx == -1) return;
+    result.push_back(key[root_idx]);
+    pre_order_traversal(left[root_idx], result);
+    pre_order_traversal(right[root_idx], result);
+  }
+
+  void post_order_traversal(int root_idx, vector<int>& result) {
+    if (root_idx == -1) return;
+    post_order_traversal(left[root_idx], result);
+    post_order_traversal(right[root_idx], result);
+    result.push_back(key[root_idx]);
+  }
+
 
   vector <int> in_order() {
     vector<int> result;
     // Finish the implementation
     // You may need to add a new recursive method to do that
-
+    in_order_traversal(0, result);
     return result;
   }
 
   vector <int> pre_order() {
-    vector<int> result;    
+    vector<int> result;
     // Finish the implementation
     // You may need to add a new recursive method to do that
-    
+    pre_order_traversal(0, result);
     return result;
   }
 
@@ -48,7 +69,7 @@ public:
     vector<int> result;
     // Finish the implementation
     // You may need to add a new recursive method to do that
-    
+    post_order_traversal(0, result);
     return result;
   }
 };
