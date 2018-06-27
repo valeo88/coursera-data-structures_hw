@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <limits>
 
 using std::cin;
 using std::cout;
@@ -16,22 +17,27 @@ struct Node {
   Node(int key_, int left_, int right_) : key(key_), left(left_), right(right_) {}
 };
 
+/* Проверка того факта, что текущее дерево ограничено снизу min_ и сверху max_ */
+bool is_bst_util(const int root_idx, const vector<Node>& tree, int min_, int max_) {
+  /* пустое дерево - бинарное дерево поиска */
+  if (root_idx==-1)
+     return true;
+
+  /* проверка ограничения */
+  if (tree[root_idx].key < min_ || tree[root_idx].key > max_)
+     return false;
+
+  /* проверяем рекурсивно левую и правую ветвь дерева
+  в левой части элементы меньше чем корень, а в правой больше. */
+  return
+    is_bst_util(tree[root_idx].left, tree, min_, tree[root_idx].key) &&
+    is_bst_util(tree[root_idx].right, tree, tree[root_idx].key, max_);
+}
+
 
 bool IsBinarySearchTree(const vector<Node>& tree) {
   // Implement correct algorithm here
-  for (int i = 0; i < tree.size(); ++i) {
-    Node current = tree[i];
-    if (current.left!=-1 && tree[current.left].key > current.key) {
-        return false;
-    } else if (current.right!=-1 && tree[current.right].key < current.key) {
-        return false;
-    } else if (current.left!=-1 && tree[current.left].right!=-1 && tree[tree[current.left].right].key > current.key) {
-        return false;
-    }  else if (current.right!=-1 && tree[current.right].left!=-1 && tree[tree[current.right].left].key < current.key) {
-        return false;
-    }
-  }
-  return true;
+  return is_bst_util(tree.size()>0 ? 0 : -1, tree, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 }
 
 int main() {
