@@ -16,8 +16,21 @@ struct Node {
   Node(int key_, int left_, int right_) : key(key_), left(left_), right(right_) {}
 };
 
+
 bool IsBinarySearchTree(const vector<Node>& tree) {
   // Implement correct algorithm here
+  for (int i = 0; i < tree.size(); ++i) {
+    Node current = tree[i];
+    if (current.left!=-1 && tree[current.left].key > current.key) {
+        return false;
+    } else if (current.right!=-1 && tree[current.right].key < current.key) {
+        return false;
+    } else if (current.left!=-1 && tree[current.left].right!=-1 && tree[tree[current.left].right].key > current.key) {
+        return false;
+    }  else if (current.right!=-1 && tree[current.right].left!=-1 && tree[tree[current.right].left].key < current.key) {
+        return false;
+    }
+  }
   return true;
 }
 
@@ -30,7 +43,7 @@ int main() {
     cin >> key >> left >> right;
     tree.push_back(Node(key, left, right));
   }
-  if (IsBinarySearchTree(tree) {
+  if (IsBinarySearchTree(tree)) {
     cout << "CORRECT" << endl;
   } else {
     cout << "INCORRECT" << endl;
